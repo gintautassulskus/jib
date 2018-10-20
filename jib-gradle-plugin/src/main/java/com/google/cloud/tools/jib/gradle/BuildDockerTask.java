@@ -31,13 +31,14 @@ import com.google.cloud.tools.jib.plugins.common.BuildStepsRunner;
 import com.google.cloud.tools.jib.plugins.common.ConfigurationPropertyValidator;
 import com.google.cloud.tools.jib.plugins.common.HelpfulSuggestions;
 import com.google.common.base.Preconditions;
-import java.io.IOException;
-import javax.annotation.Nullable;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.options.Option;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
 
 /** Builds a container image and exports to the default Docker daemon. */
 public class BuildDockerTask extends DefaultTask implements JibTask {
@@ -102,6 +103,9 @@ public class BuildDockerTask extends DefaultTask implements JibTask {
             gradleHelpfulSuggestionsBuilder.build());
 
     DockerDaemonImage targetImage = DockerDaemonImage.named(targetImageReference);
+
+    targetImage.setDockerEnvironment(jibExtension.getDockerClient().getEnvironment());
+    targetImage.setDockerExecutable(jibExtension.getDockerClient().getExecutable());
 
     PluginConfigurationProcessor pluginConfigurationProcessor =
         PluginConfigurationProcessor.processCommonConfiguration(

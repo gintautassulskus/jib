@@ -26,6 +26,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -34,7 +36,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.annotation.Nullable;
 
 /** Immutable configuration options for the builder process. */
 public class BuildConfiguration {
@@ -54,6 +55,7 @@ public class BuildConfiguration {
     @Nullable private ImageConfiguration targetImageConfiguration;
     private ImmutableSet<String> additionalTargetImageTags = ImmutableSet.of();
     @Nullable private ContainerConfiguration containerConfiguration;
+    @Nullable private DockerClientConfiguration dockerClientConfiguration;
     @Nullable private Path applicationLayersCacheDirectory;
     @Nullable private Path baseImageLayersCacheDirectory;
     private boolean allowInsecureRegistries = false;
@@ -112,6 +114,17 @@ public class BuildConfiguration {
       this.containerConfiguration = containerConfiguration;
       return this;
     }
+
+      /**
+       * Sets configuration parameters for the dockerClient.
+       *
+       * @param dockerClientConfiguration the {@link ContainerConfiguration}
+       * @return this
+       */
+      public Builder setDockerClientConfiguration(DockerClientConfiguration dockerClientConfiguration) {
+          this.dockerClientConfiguration = dockerClientConfiguration;
+          return this;
+      }
 
     /**
      * Sets the location of the cache for storing application layers.
@@ -243,6 +256,7 @@ public class BuildConfiguration {
               Preconditions.checkNotNull(targetImageConfiguration),
               additionalTargetImageTags,
               containerConfiguration,
+              dockerClientConfiguration,
               Cache.withDirectory(Preconditions.checkNotNull(baseImageLayersCacheDirectory)),
               Cache.withDirectory(Preconditions.checkNotNull(applicationLayersCacheDirectory)),
               targetFormat,
@@ -295,6 +309,7 @@ public class BuildConfiguration {
   private final ImageConfiguration targetImageConfiguration;
   private final ImmutableSet<String> additionalTargetImageTags;
   @Nullable private final ContainerConfiguration containerConfiguration;
+  @Nullable private final DockerClientConfiguration dockerClientConfiguration;
   private final Cache baseImageLayersCache;
   private final Cache applicationLayersCache;
   private Class<? extends BuildableManifestTemplate> targetFormat;
@@ -310,6 +325,7 @@ public class BuildConfiguration {
       ImageConfiguration targetImageConfiguration,
       ImmutableSet<String> additionalTargetImageTags,
       @Nullable ContainerConfiguration containerConfiguration,
+      @Nullable DockerClientConfiguration dockerClientConfiguration,
       Cache baseImageLayersCache,
       Cache applicationLayersCache,
       Class<? extends BuildableManifestTemplate> targetFormat,
@@ -322,6 +338,7 @@ public class BuildConfiguration {
     this.targetImageConfiguration = targetImageConfiguration;
     this.additionalTargetImageTags = additionalTargetImageTags;
     this.containerConfiguration = containerConfiguration;
+    this.dockerClientConfiguration = dockerClientConfiguration;
     this.baseImageLayersCache = baseImageLayersCache;
     this.applicationLayersCache = applicationLayersCache;
     this.targetFormat = targetFormat;
@@ -351,6 +368,11 @@ public class BuildConfiguration {
   @Nullable
   public ContainerConfiguration getContainerConfiguration() {
     return containerConfiguration;
+  }
+
+  @Nullable
+  public DockerClientConfiguration getDockerClientConfiguration() {
+    return dockerClientConfiguration;
   }
 
   public Class<? extends BuildableManifestTemplate> getTargetFormat() {

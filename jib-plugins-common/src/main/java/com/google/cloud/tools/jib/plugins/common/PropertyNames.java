@@ -42,5 +42,7 @@ public class PropertyNames {
   public static final String USE_ONLY_PROJECT_CACHE = "jib.useOnlyProjectCache";
   public static final String ALLOW_INSECURE_REGISTRIES = "jib.allowInsecureRegistries";
   public static final String EXTRA_DIRECTORY = "jib.extraDirectory";
+  public static final String DOCKER_CLIENT_ENVIRONMENT = "jib.dockerClient.environment";
+  public static final String DOCKER_CLIENT_EXECUTABLE = "jib.dockerClient.executable";
   public static final String SKIP = "jib.skip";
 }

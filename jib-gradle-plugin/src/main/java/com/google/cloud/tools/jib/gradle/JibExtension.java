@@ -17,9 +17,6 @@
 package com.google.cloud.tools.jib.gradle;
 
 import com.google.cloud.tools.jib.plugins.common.PropertyNames;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -28,6 +25,10 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Plugin extension for {@link JibPlugin}.
@@ -68,6 +69,7 @@ public class JibExtension {
   private final BaseImageParameters from;
   private final TargetImageParameters to;
   private final ContainerParameters container;
+  private final DockerClientParameters dockerClient;
   private final Property<Boolean> useOnlyProjectCache;
   private final Property<Boolean> allowInsecureRegistries;
   private final Property<Path> extraDirectory;
@@ -78,6 +80,8 @@ public class JibExtension {
     from = objectFactory.newInstance(BaseImageParameters.class, "jib.from");
     to = objectFactory.newInstance(TargetImageParameters.class, "jib.to");
     container = objectFactory.newInstance(ContainerParameters.class);
+    dockerClient = objectFactory.newInstance(DockerClientParameters.class);
+
 
     useOnlyProjectCache = objectFactory.property(Boolean.class);
     allowInsecureRegistries = objectFactory.property(Boolean.class);
@@ -99,6 +103,10 @@ public class JibExtension {
 
   public void container(Action<? super ContainerParameters> action) {
     action.execute(container);
+  }
+
+  public void dockerClient(Action<? super DockerClientParameters> action) {
+    action.execute(dockerClient);
   }
 
   public void setAllowInsecureRegistries(boolean allowInsecureRegistries) {
@@ -129,6 +137,12 @@ public class JibExtension {
   @Optional
   public ContainerParameters getContainer() {
     return container;
+  }
+
+  @Nested
+  @Optional
+  public DockerClientParameters getDockerClient() {
+    return dockerClient;
   }
 
   @Input
