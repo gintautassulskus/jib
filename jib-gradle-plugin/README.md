@@ -161,6 +161,7 @@ Field | Type | Default | Description
 `to` | [`to`](#to-closure) | *Required* | Configures the target image to build your application to.
 `from` | [`from`](#from-closure) | See [`from`](#from-closure) | Configures the base image to build your application on top of.
 `container` | [`container`](#container-closure) | See [`container`](#container-closure) | Configures the container that is run from your built image.
+`dockerClient` | [`dockerClient`](#dockerClient-closure) | See [`dockerClient`](#dockerClient-closure) | Configures the docker command line tool that pushes image directly to a local Docker daemon.
 `allowInsecureRegistries` | `boolean` | `false` | If set to true, Jib ignores HTTPS certificate errors and may fall back to HTTP as a last resort. Leaving this parameter set to `false` is strongly recommended, since HTTP communication is unencrypted and visible to others on the network, and insecure HTTPS is no better than plain HTTP. [If accessing a registry with a self-signed certificate, adding the certificate to your Java runtime's trusted keys](https://github.com/GoogleContainerTools/jib/tree/master/docs/self_sign_cert.md) may be an alternative to enabling this option.
 `useProjectOnlyCache` | `boolean` | `false` | If set to `true`, Jib does not share a cache between different Maven projects.
 
@@ -188,11 +189,18 @@ Property | Type
 `username` | `String`
 `password` | `String`
 
+<a name="dockerClient-closure"></a>`dockerClient` is a closure with the following properties:
+
+Property | Type | Default | Description
+--- | --- | --- | ---
+`environment` | `Map<String, String>` | ``{}`` | Environment variables for docker cli
+`executable` | `String` | ``"docker"``| A name or a path to a docker executable
+
 <a name="container-closure"></a>`container` is a closure with the following properties:
 
 Property | Type | Default | Description
 --- | --- | --- | ---
-`appRoot` | `String` | `/app` | The root directory on the container where the app's contents are placed. 
+`appRoot` | `String` | `/app` | The root directory on the container where the app's contents are placed.
 `args` | `List<String>` | *None* | Default main method arguments to run your application with.
 `entrypoint` | `List<String>` | *None* | The command to start the container with (similar to Docker's [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint) instruction). If set, then `jvmFlags` and `mainClass` are ignored.
 `environment` | `Map<String, String>` | *None* | Key-value pairs for setting environment variables on the container (similar to Docker's [ENV](https://docs.docker.com/engine/reference/builder/#env) instruction).
