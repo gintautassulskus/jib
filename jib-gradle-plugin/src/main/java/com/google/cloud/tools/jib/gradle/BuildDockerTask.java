@@ -104,9 +104,6 @@ public class BuildDockerTask extends DefaultTask implements JibTask {
 
     DockerDaemonImage targetImage = DockerDaemonImage.named(targetImageReference);
 
-    targetImage.setDockerEnvironment(jibExtension.getDockerClient().getEnvironment());
-    targetImage.setDockerExecutable(jibExtension.getDockerClient().getExecutable());
-
     PluginConfigurationProcessor pluginConfigurationProcessor =
         PluginConfigurationProcessor.processCommonConfiguration(
             getLogger(), jibExtension, gradleProjectProperties);

@@ -20,14 +20,19 @@ import com.google.cloud.tools.jib.image.ImageFormat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Arrays;
-import java.util.Collections;
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static com.google.cloud.tools.jib.docker.DockerClient.DEFAULT_DOCKER_CLIENT;
 
 /** Tests for {@link JibExtension}. */
 public class JibExtensionTest {
@@ -139,6 +144,24 @@ public class JibExtensionTest {
         ImmutableMap.of("label1", "value1", "label2", "value2"), container.getLabels());
     Assert.assertSame(ImageFormat.OCI, container.getFormat());
     Assert.assertEquals("some invalid appRoot value", container.getAppRoot());
+  }
+
+  @Test
+  public void testDockerClient() {
+    Assert.assertEquals(Collections.emptyMap(), testJibExtension.getDockerClient().getEnvironment());
+    Assert.assertEquals(Paths.get(DEFAULT_DOCKER_CLIENT), testJibExtension.getDockerClient().getExecutable());
+
+    Path path = Paths.get("/path/to/docker");
+
+    testJibExtension.dockerClient(
+            container -> {
+              container.setEnvironment(ImmutableMap.of("var1", "value1", "var2", "value2"));
+              container.setExecutable(path.toString());
+            });
+    DockerClientParameters dockerClient = testJibExtension.getDockerClient();
+    Assert.assertEquals(
+            ImmutableMap.of("var1", "value1", "var2", "value2"), dockerClient.getEnvironment());
+    Assert.assertEquals(path, testJibExtension.getDockerClient().getExecutable());
   }
 
   @Test

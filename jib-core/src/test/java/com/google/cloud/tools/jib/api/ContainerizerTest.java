@@ -20,13 +20,17 @@ import com.google.cloud.tools.jib.configuration.CacheDirectoryCreationException;
 import com.google.cloud.tools.jib.event.EventHandlers;
 import com.google.cloud.tools.jib.image.ImageReference;
 import com.google.common.collect.ImmutableSet;
-import java.nio.file.Paths;
-import java.util.concurrent.ExecutorService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /** Tests for {@link Containerizer}. */
 @RunWith(MockitoJUnitRunner.class)
@@ -63,6 +67,12 @@ public class ContainerizerTest {
     Assert.assertFalse(containerizer.getAllowInsecureRegistries());
     Assert.assertEquals("jib-core", containerizer.getToolName());
 
+    Assert.assertFalse(containerizer.getDockerClientEnvironment().isPresent());
+    Assert.assertFalse(containerizer.getDockerClientExecutable().isPresent());
+
+    Map<String, String> environment = Collections.singletonMap("Key1", "Value1");
+    Path path = Paths.get("/path/to/docker");
+
     containerizer
         .withAdditionalTag("tag1")
         .withAdditionalTag("tag2")
@@ -71,7 +81,10 @@ public class ContainerizerTest {
         .setBaseImageLayersCache(Paths.get("base/image/layers"))
         .setApplicationLayersCache(Paths.get("application/layers"))
         .setAllowInsecureRegistries(true)
-        .setToolName("tool");
+        .setToolName("tool")
+        .setDockerClientEnvironment(environment)
+        .setDockerClientExecutable(path);
+
 
     Assert.assertSame(expectedTargetImage, containerizer.getTargetImage());
     Assert.assertEquals(ImmutableSet.of("tag1", "tag2"), containerizer.getAdditionalTags());
@@ -85,5 +98,7 @@ public class ContainerizerTest {
         Paths.get("application/layers"), containerizer.getApplicationLayersCacheDirectory());
     Assert.assertTrue(containerizer.getAllowInsecureRegistries());
     Assert.assertEquals("tool", containerizer.getToolName());
+    Assert.assertEquals(environment, containerizer.getDockerClientEnvironment().get());
+    Assert.assertEquals(path, containerizer.getDockerClientExecutable().get());
   }
 }

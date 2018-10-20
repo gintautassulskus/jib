@@ -24,13 +24,6 @@ import com.google.cloud.tools.jib.docker.DockerClient;
 import com.google.cloud.tools.jib.image.ImageReference;
 import com.google.cloud.tools.jib.image.InvalidImageReferenceException;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Map;
-
-import static com.google.cloud.tools.jib.docker.DockerClient.DEFAULT_DOCKER_CLIENT;
-
 /**
  * Builds to the Docker daemon.
  */
@@ -62,36 +55,12 @@ public class DockerDaemonImage implements TargetImage {
     }
 
     private final ImageReference imageReference;
-    private Path dockerExecutable = Paths.get(DEFAULT_DOCKER_CLIENT);
-    private Map<String, String> dockerEnvironment = Collections.emptyMap();
 
     /**
      * Instantiate with {@link #named}.
      */
     private DockerDaemonImage(ImageReference imageReference) {
         this.imageReference = imageReference;
-    }
-
-    /**
-     * Sets the path to the {@code docker} CLI. This is {@code docker} by default.
-     *
-     * @param dockerExecutable the path to the {@code docker} CLI
-     * @return this
-     */
-    public DockerDaemonImage setDockerExecutable(Path dockerExecutable) {
-        this.dockerExecutable = dockerExecutable;
-        return this;
-    }
-
-    /**
-     * Sets environment variables for {@code docker} CLI. None is set by default.
-     *
-     * @param dockerEnvironment the path to the {@code docker} CLI
-     * @return this
-     */
-    public DockerDaemonImage setDockerEnvironment(Map<String, String> dockerEnvironment) {
-        this.dockerEnvironment = dockerEnvironment;
-        return this;
     }
 
     @Override
@@ -102,17 +71,8 @@ public class DockerDaemonImage implements TargetImage {
     @Override
     public BuildSteps toBuildSteps(BuildConfiguration buildConfiguration) {
         return BuildSteps.forBuildToDockerDaemon(
-                DockerClient.newClient(dockerExecutable, dockerEnvironment),
+                DockerClient.newClient(buildConfiguration.getDockerClientConfiguration()),
                 buildConfiguration);
-    }
-
-    /**
-     * Gets the path to the {@code docker} CLI.
-     *
-     * @return the path to the {@code docker} CLI
-     */
-    Path getDockerExecutable() {
-        return dockerExecutable;
     }
 
 }

@@ -17,27 +17,20 @@
 package com.google.cloud.tools.jib.api;
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.configuration.CacheDirectoryCreationException;
-import com.google.cloud.tools.jib.configuration.ContainerConfiguration;
-import com.google.cloud.tools.jib.configuration.LayerConfiguration;
-import com.google.cloud.tools.jib.configuration.Port;
+import com.google.cloud.tools.jib.configuration.*;
 import com.google.cloud.tools.jib.event.DefaultEventDispatcher;
 import com.google.cloud.tools.jib.filesystem.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.image.DescriptorDigest;
 import com.google.cloud.tools.jib.image.ImageFormat;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nullable;
 
 /**
  * Builds a container with Jib.
@@ -399,6 +392,7 @@ public class JibContainerBuilder {
         .setBaseImageLayersCacheDirectory(containerizer.getBaseImageLayersCacheDirectory())
         .setApplicationLayersCacheDirectory(containerizer.getApplicationLayersCacheDirectory())
         .setContainerConfiguration(toContainerConfiguration())
+        .setDockerClientConfiguration(toDockerClientConfiguration(containerizer))
         .setLayerConfigurations(layerConfigurations)
         .setTargetFormat(imageFormat.getManifestTemplateClass())
         .setAllowInsecureRegistries(containerizer.getAllowInsecureRegistries())
@@ -427,5 +421,13 @@ public class JibContainerBuilder {
         .setCreationTime(creationTime)
         .setUser(user)
         .build();
+  }
+
+  @VisibleForTesting
+  DockerClientConfiguration toDockerClientConfiguration(Containerizer containerizer) {
+    return DockerClientConfiguration.builder()
+            .setEnvironment(containerizer.getDockerClientEnvironment().get())
+            .setExecutable(containerizer.getDockerClientExecutable().get())
+            .build();
   }
 }

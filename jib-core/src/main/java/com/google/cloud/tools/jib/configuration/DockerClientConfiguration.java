@@ -6,18 +6,25 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
 import javax.annotation.Nullable;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
 public class DockerClientConfiguration {
 
-    /** Builder for instantiating a {@link DockerClientConfiguration}. */
+    /**
+     * Builder for instantiating a {@link DockerClientConfiguration}.
+     */
     public static class Builder {
 
-        @Nullable private ImmutableMap<String, String> environmentMap;
+        @Nullable
+        private ImmutableMap<String, String> environmentMap;
+
+        @Nullable
+        private Path executable;
 
         /**
-         * Sets the container's environment variables, mapping variable name to value.
+         * Sets the environment variables for docker executable
          *
          * @param environmentMap the map
          * @return this
@@ -34,15 +41,31 @@ public class DockerClientConfiguration {
         }
 
         /**
+         * Sets docker executable path
+         *
+         * @param executable the map
+         * @return this
+         */
+        public Builder setExecutable(@Nullable Path executable) {
+            if (executable == null) {
+                this.executable = null;
+            } else {
+                this.executable = executable;
+            }
+            return this;
+        }
+
+        /**
          * Builds the {@link DockerClientConfiguration}.
          *
          * @return the corresponding {@link DockerClientConfiguration}
          */
         public DockerClientConfiguration build() {
-            return new DockerClientConfiguration(environmentMap);
+            return new DockerClientConfiguration(environmentMap, executable);
         }
 
-        private Builder() {}
+        private Builder() {
+        }
     }
 
     /**
@@ -54,16 +77,25 @@ public class DockerClientConfiguration {
         return new DockerClientConfiguration.Builder();
     }
 
-    @Nullable private final ImmutableMap<String, String> environmentMap;
+    @Nullable
+    private final ImmutableMap<String, String> environmentMap;
 
-    private DockerClientConfiguration (
-            @Nullable ImmutableMap<String, String> environmentMap) {
+    @Nullable
+    private final Path executable;
+
+    private DockerClientConfiguration(@Nullable ImmutableMap<String, String> environmentMap, @Nullable Path executable) {
         this.environmentMap = environmentMap;
+        this.executable = executable;
     }
 
     @Nullable
     public ImmutableMap<String, String> getEnvironmentMap() {
         return environmentMap;
+    }
+
+    @Nullable
+    public Path getExecutable() {
+        return executable;
     }
 
     @Override

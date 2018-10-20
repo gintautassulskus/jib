@@ -16,11 +16,7 @@
 
 package com.google.cloud.tools.jib.api;
 
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.configuration.CacheDirectoryCreationException;
-import com.google.cloud.tools.jib.configuration.ContainerConfiguration;
-import com.google.cloud.tools.jib.configuration.LayerConfiguration;
-import com.google.cloud.tools.jib.configuration.Port;
+import com.google.cloud.tools.jib.configuration.*;
 import com.google.cloud.tools.jib.configuration.credentials.Credential;
 import com.google.cloud.tools.jib.configuration.credentials.CredentialRetriever;
 import com.google.cloud.tools.jib.event.EventHandlers;
@@ -31,12 +27,6 @@ import com.google.cloud.tools.jib.image.InvalidImageReferenceException;
 import com.google.cloud.tools.jib.registry.credentials.CredentialRetrievalException;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +34,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 /** Tests for {@link JibContainerBuilder}. */
 @RunWith(MockitoJUnitRunner.class)
@@ -124,7 +122,9 @@ public class JibContainerBuilderTest {
             .setBaseImageLayersCache(Paths.get("base/image/layers"))
             .setApplicationLayersCache(Paths.get("application/layers"))
             .setExecutorService(mockExecutorService)
-            .setEventHandlers(new EventHandlers().add(mockJibEventConsumer));
+            .setEventHandlers(new EventHandlers().add(mockJibEventConsumer))
+            .setDockerClientEnvironment(Collections.singletonMap("Value1", "Key1"))
+            .setDockerClientExecutable(Paths.get("/path/to/docker"));
 
     JibContainerBuilder jibContainerBuilder =
         Jib.from(baseImage)
@@ -165,6 +165,10 @@ public class JibContainerBuilderTest {
         .setBaseImageLayersCacheDirectory(Paths.get("base/image/layers"));
     Mockito.verify(spyBuildConfigurationBuilder)
         .setApplicationLayersCacheDirectory(Paths.get("application/layers"));
+
+    Assert.assertEquals(
+            jibContainerBuilder.toDockerClientConfiguration(containerizer),
+            buildConfiguration.getDockerClientConfiguration());
 
     Assert.assertEquals(
         Arrays.asList(mockLayerConfiguration1, mockLayerConfiguration2),
